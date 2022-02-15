@@ -1,0 +1,30 @@
+#requires srcFolder variable to be declared before this file is sourced
+#e.g. srcFolder='../ModelFunctions/' 
+
+fileNames=c(
+    
+    #vital rates
+    'deathE.R',
+    'deathJ.R',
+    'growthE.R',
+    'growthJ.R',
+    'female.prop.R',
+
+    #derivatives
+    'PCNEquations.R',
+
+    #initialConditions
+    'initialConditions.R',
+    
+    #drivers
+    'tempFunc.R',
+    'potato.R',
+    'rootdamage.R'
+    
+)
+
+for (file in fileNames){
+    source(paste(srcFolder,file,sep=''))
+}
+
+

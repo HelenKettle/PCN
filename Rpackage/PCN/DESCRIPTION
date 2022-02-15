@@ -1,0 +1,21 @@
+Package: PCN
+Title: Process-based Model of Potato Cyst Nematodes
+Version: 1.0
+Authors@R: 
+  c(person(given = "Helen",
+           family = "Kettle",
+           role = c("aut", "cre"),
+           email = "helen.kettle@bioss.ac.uk",
+           comment = c(ORCID = "0000-0002-6960-9733")),
+    person(given = "Ewing",
+           family = "David",
+           role = "ctb"))
+Description: This uses a mix of delay-differential equations (DDEs) and ordinary differential equations (ODEs) to simulate the life cycle of potato cyst nematodes with temperature dependency and indivual variability.
+License: use_gpl3_license()
+Depends: PBSddesolve
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

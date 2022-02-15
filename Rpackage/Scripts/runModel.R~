@@ -1,0 +1,9 @@
+rm(list=ls())
+
+
+graphics.off()
+
+library(devtools)
+library(roxygen2)
+
+load_all(

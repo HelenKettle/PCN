@@ -1,0 +1,10 @@
+quickPlot=function(out){
+
+
+    time=out[,1]
+
+    Egg.names=
+
+
+    
+}

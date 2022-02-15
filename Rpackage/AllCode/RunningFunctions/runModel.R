@@ -1,0 +1,87 @@
+rm(list=ls())
+graphics.off()
+
+pcn.function <- function(parms,initial,timeVec){
+  ts <- timeVec
+  as.data.frame(dde(y=initial,times=ts,func=pcn.equations,parms=parms,hbsize=10000,tol=1e-5))
+}
+
+#setwd("//filermaincifs.bioss.ac.uk/HomeDirVol/dewing/Win10-Profile/Desktop/PCN_Paper_Code/Running Functions/")
+setwd("~/PCN/Rpackage/AllCode/RunningFunctions/")
+
+library(PBSddesolve)
+
+# Load in the parameter values
+source("parameters.R")
+srcFolder = "../ModelFunctions/"
+source("../ModelFunctions/srcFiles.R")
+source('quickPlot.R')
+
+
+
+# Create vector with names of all life stages
+stageNames=c('cysts','eggs','juveniles','females','males')
+
+# Set start and finish times for years with no potatoes
+noPotStart=as.numeric(unname(noPotatoYearsList[[1]]['start']))
+noPotFinish=as.numeric(unname(noPotatoYearsList[[1]]['fin']))
+
+# Create names for storing results for each life stage
+Evec=paste('E',1:kE,sep='')
+Jvec=paste('J',1:kJ,sep='')
+Afvec=paste('A',1:kA,'.f',sep='')
+Amvec=paste('A',1:kA,'.m',sep='')
+
+parms = list(
+    vitalRates=vitalRates,
+  kE = kE,
+  kJ = kJ,
+  kA = kA,
+  tauA.m = tauA.m,
+  tauA.f = tauA.f,
+  PA = PA,
+  deathC = deathC,
+  dormancy = dormancy,
+  gen2 = gen2,
+  plantingDOY = plantingDOY,
+  harvestingDOY = harvestingDOY,
+  initialEggsPerGram = initialEggsPerGram,
+  eggs_per_cyst = eggs_per_cyst,
+  Copt = Copt,
+  resistanceFactor = resistanceFactor,
+  simStartDay = simStartDay,
+  noPotatoYearsStart = noPotStart,
+  noPotatoYearsFinish = noPotFinish,
+  cyst.pause = cyst.pause,
+  soil.density = soil.density,
+  root.length = root.length,
+  roots.per.cm = roots.per.cm,
+  Evec = Evec,
+  Jvec = Jvec,
+  Afvec = Afvec,
+  Amvec = Amvec,
+  N.plants = N.plants,
+  deltaT = deltaT
+)
+
+if (!is.null(fixTemp)){
+  constantTemp=fixTemp+parms$deltaT
+}else{
+  constantTemp=NA
+}
+parms$constantTemp = constantTemp
+
+#initial conditions
+initial=initFunc(parms)
+parms$tauE.init=as.numeric(unname(initial['tauE']))
+
+timeVec=seq(0,numYears*365,by=0.5)
+
+# Run the model
+
+#output <- pcn.function(parms,initial,timeVec)
+output =  as.data.frame(dde(y=initial,times=timeVec,func=pcn.equations,parms=parms,hbsize=10000,tol=1e-5))
+
+
+
+quickPlot(output,parms)

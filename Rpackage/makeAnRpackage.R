@@ -17,6 +17,7 @@ devtools::install()
 
 devtools::check('PCN')
 
+devtools::test('PCN')
 
 
 #Tests

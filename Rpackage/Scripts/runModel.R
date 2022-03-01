@@ -11,11 +11,11 @@ setwd(paste0(parent_f,'Scripts/'))
 
 load_all(package_f)
 
-document(package_f)
+#document(package_f)
 
-build(package_f)
+#build(package_f)
 
-install(package_f)
+#install(package_f)
 
 #setwd('PCN')
 #usethis::use_testthat()
@@ -24,7 +24,7 @@ install(package_f)
 
 #library(PCN)
 
-?PCNmodel
+#?PCNmodel
 
 ### Model settings
 numYears=1 #number of years to simulate

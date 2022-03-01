@@ -12,7 +12,7 @@ Authors@R:
            role = "ctb"))
 Description: This uses a mix of delay-differential equations (DDEs) and ordinary differential equations (ODEs) to simulate the life cycle of potato cyst nematodes with temperature dependency and indivual variability.
 License: use_gpl3_license()
-Depends: PBSddesolve
+Depends: PBSddesolve, graphics, stats
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2

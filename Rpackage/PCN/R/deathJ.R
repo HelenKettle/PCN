@@ -1,3 +1,12 @@
+#' deathJ
+#'
+#' death rate of juveniles
+#'
+#' @param Temp current temperature (oC) 
+#' @param PE ???
+#' @param tauJ length of juvenile stage (d?)
+#' @param potato.presence 0 or 1 indicating whether potatoes are in the soil
+#' 
 deathJ <- function(Temp,PE,tauJ,potato.presence){
 
     af <- 0.25

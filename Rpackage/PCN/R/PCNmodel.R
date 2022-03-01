@@ -3,7 +3,7 @@
 #' @param numYears Integer. Number of years to simulate
 #' @param simStartDay Integer. Day of the year the simulation starts. Defaults to 0
 #' @param initialEggsPerGram Scalar. Initial egg density. Defaults to 0.1 eggs per gram of soil
-#' @param soil.density Scala. Soil density (g/cm^3). Defaults to 1.5 g/cm^3
+#' @param soil.density Scalar. Soil density (g/cm^3). Defaults to 1.5 g/cm^3
 #' @param plantingDOY Integer. Potatoes planted on this day of the year. Defaults to 90
 #' @param harvestingDOY Integer. Potatoes harvested on this day of the year. Defaults to 216
 #' @param noPotatoYearsList Defaults to list(c(start=2,fin=3)), Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).
@@ -35,7 +35,9 @@
 #' \item oots.per.cm = 0.5, root length density of potato plants
 #' }
 #' 
-#' @return matrix
+#' @return a list with the solution matrix and a list of parameters
+#'
+#' @importFrom PBSddesolve dde
 #' 
 #' @export
 PCNmodel=function(
@@ -99,8 +101,11 @@ Jvec=paste('J',1:ode.compartments$kJ,sep='')
 Afvec=paste('A',1:ode.compartments$kA,'.f',sep='')
 Amvec=paste('A',1:ode.compartments$kA,'.m',sep='')
 
+
+
 parms = list(
-    vitalRates=vitalRates,
+    #put vital rates functions into one list
+    vitalRates=list(deathE=deathE,deathJ=deathJ,growthE=growthE,growthJ=growthJ,female.prop=female.prop),    
     kE = ode.compartments$kE,
     kJ = ode.compartments$kJ,
     kA = ode.compartments$kA,
@@ -132,7 +137,7 @@ parms = list(
 )
 
 if (!is.null(temperature.pars$fixTemp)){
-    parms$constantTemp=fixTemp+parms$deltaT
+    parms$constantTemp=temperature.pars$fixTemp+parms$deltaT
 }else{
     parms$constantTemp=NA
 }
@@ -155,7 +160,7 @@ output =  as.data.frame(dde(y=initial,times=timeVec,func=pcn.equations,parms=par
 
 quickPlot(output,parms)
 
-return(output)
+return(list(solutions=output,parms=parms))
 
 }
 

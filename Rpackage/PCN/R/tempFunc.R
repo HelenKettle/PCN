@@ -1,6 +1,15 @@
+#' tempFunc
+#'
+#' @param t is model time
+#' @param simStartDay is the day of the year that the simulation starts (when t=0)
+#' @param deltaT increase or decrease to temperature (oC)
+#' @param constantTemp scalar value for fixed temperature (oC). Default is NA.
+#' @param temperaturefile string for name of file to get temperature from. Default is NULL
+#' @param init.temp scalar for initial temperature value. Default is 14.5 oC.
+
+#' @import stats
+
 tempFunc <- function(t,deltaT,simStartDay,constantTemp=NA,temperaturefile=NULL,init.temp=14.5){
-    # t is model time
-    # simStartDay is the day of the year that the simulation starts (when t=0)
 
     if (is.na(constantTemp)){
     
@@ -15,9 +24,9 @@ tempFunc <- function(t,deltaT,simStartDay,constantTemp=NA,temperaturefile=NULL,i
       } else {
         
         if(t > 0){
-            Temp = predict(temperaturefile,t)$y+deltaT
+            Temp = stats::predict(temperaturefile,t)$y+deltaT
         } else {
-            Temp = median(predict(temperaturefile,0:14)$y)+deltaT
+            Temp = stats::median(predict(temperaturefile,0:14)$y)+deltaT
         }
         
       }

@@ -1,3 +1,11 @@
+#' pcn.equations
+#'
+#' rate of change equations for DDE solver 
+#'
+#' @param t time (d)
+#' @param x vector of state variables
+#' @param parms list of paramter values 
+
 pcn.equations <- function(t,x,parms){
 
     tauE <- x["tauE"] # Egg delay

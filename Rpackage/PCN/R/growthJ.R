@@ -1,3 +1,12 @@
+#' growthJ
+#'
+#' specific growth rate of juveniles (Eq. 14 Ewing et al. 2021)
+#'
+#' @param Temp current temperature (oC)
+#' @param tauE mean time until hatching (d)
+#'
+#' @return juvenile growth rate (/d)
+
 growthJ <- function(Temp,tauE){
 
     a0 <- 41.628

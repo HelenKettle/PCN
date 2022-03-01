@@ -1,10 +1,15 @@
-potato <- function(t,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish){
+#' potato
+#'
+#' returns 0 if no potatoes present at time t, returns 1 if potatoes are present
+#' 
+#' @param t is model time (d)
+#' @param simStartDay is the day of the year the simulation starts (where t=0)
+#' @param plantingDOY is day of year potatoes are planted
+#' @param harvestingDOY is day of year potatoes are harvested
+#' @param noPotatoYearsStart start of fallow period 
+#' @param noPotatoYearsFinish end of fallow period
 
-    #t is model time
-    #simStartDay is the day of the year the simulation starts (where t=0)
-    #plantingDOY is day of year potatoes are planted
-    #harvestingDOY is day of year potatoes are harvested
-    #missingYears is a vector of years (starting from 1) that potatoes aren't planted
+potato <- function(t,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish){
     
     dayOfYear=(t+simStartDay)%%365
 

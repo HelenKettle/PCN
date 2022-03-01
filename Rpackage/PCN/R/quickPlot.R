@@ -1,3 +1,11 @@
+#' quickPlot
+#'
+#' @param out matrix called 'solution' in output list from PCNmodel()
+#' @param parms parms list from output of PCNmodel()
+#'
+#' @import graphics 
+#' 
+
 quickPlot=function(out,parms){
 
 
@@ -11,11 +19,11 @@ quickPlot=function(out,parms){
     finalmat=cbind(Eggs,Juveniles,Adults,Cysts)
 
     
-    matplot(time,finalmat,type='l',lwd=2,
+    graphics::matplot(time,finalmat,type='l',lwd=2,
             xlab='Time (d)',ylab='Abundance',
             cex.axis=1.5,cex.lab=1.5)
 
-    legend('topright',col=1:4,lty=1:4,lwd=2,
+    graphics::legend('topright',col=1:4,lty=1:4,lwd=2,
            legend=c('Eggs','Juveniles','Adults','Cysts'),
            bty='n',cex=1.4)
 

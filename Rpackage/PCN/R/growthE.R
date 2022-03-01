@@ -1,3 +1,9 @@
+#' growthE
+#'
+#' growth rate of eggs (/d)
+#'
+#' @param Temp current temperature (oC)
+#' 
 growthE <- function(Temp){
     
   Hopt <- 9.6

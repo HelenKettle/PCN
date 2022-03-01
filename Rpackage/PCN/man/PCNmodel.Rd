@@ -21,19 +21,19 @@ PCNmodel(
 )
 }
 \arguments{
-\item{numYears}{number of years to simulate}
+\item{numYears}{Integer. Number of years to simulate}
 
-\item{simStartDay}{day of the year the simulation starts. Defaults to 0}
+\item{simStartDay}{Integer. Day of the year the simulation starts. Defaults to 0}
 
-\item{initialEggsPerGram}{Initial egg density. Defaults to 0.1 UNITS???}
+\item{initialEggsPerGram}{Scalar. Initial egg density. Defaults to 0.1 eggs per gram of soil}
 
-\item{soil.density}{Soil density (UNITS??) Defaults to 1.5}
+\item{soil.density}{Scalar. Soil density (g/cm^3). Defaults to 1.5 g/cm^3}
 
-\item{plantingDOY}{90, # potatoes planted on this day of the year}
+\item{plantingDOY}{Integer. Potatoes planted on this day of the year. Defaults to 90}
 
-\item{harvestingDOY}{216, # potatoes harvested on this day of the year}
+\item{harvestingDOY}{Integer. Potatoes harvested on this day of the year. Defaults to 216}
 
-\item{noPotatoYearsList}{Defaults to list(c(start=2,fin=3)), # Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).}
+\item{noPotatoYearsList}{Defaults to list(c(start=2,fin=3)), Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).}
 
 \item{lifecycle.pars}{list containing parameters controlling the PCN lifecycle
 \itemize{
@@ -66,7 +66,7 @@ PCNmodel(
 }}
 }
 \value{
-matrix
+a list with the solution matrix and a list of parameters
 }
 \description{
 PCNmodel

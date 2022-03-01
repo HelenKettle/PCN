@@ -25,6 +25,7 @@
 #' \item kJ = 20, number of compartments in juvenile stage
 #' \item kA = 50, number of compartments in adult stage
 #' }
+#' 
 #' @param temperature.pars list
 #' @param plant.pars list of factors relating to the potato plant
 #' \itemize{

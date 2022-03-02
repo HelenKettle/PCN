@@ -18,6 +18,7 @@
 #' \item tauA.f = 21 Duration of adult female stage
 #' \item PA = 1 Proportion of adults which survive
 #' \item dormancy = 0.0005 cyst activation from dormancy
+#' \item fixedGenderRatio = NULL value of adult gender ratio
 #' }
 #' @param ode.compartments list of how many ODEs are needed for the different life stages
 #' \itemize{
@@ -29,7 +30,7 @@
 #' @param temperature.pars list
 #' @param plant.pars list of factors relating to the potato plant
 #' \itemize{
-#' \item resistanceFactor = 0, resistance factor of potatoes
+#' \item resistanceFactor = 0, resistance factor of potatoes (see Table 1 Ewing et al 2021)
 #' \item N.plants = 1, Number of potato plants
 #' \item root.length = 500, maximum length of plant roots (cm) in healthy plant
 #' \item oots.per.cm = 0.5, root length density of potato plants
@@ -59,7 +60,8 @@ PCNmodel=function(
         tauA.m = 21, # Duration of adult male stage
         tauA.f = 21, # Duration of adult female stage
         PA = 1, # Proportion of adults which survive
-        dormancy = 0.0005 # cyst activation from dormancy
+        dormancy = 0.0005, # cyst activation from dormancy
+        fixedGenderRatio=NULL
         ),
     
     ode.compartments=list(
@@ -70,15 +72,16 @@ PCNmodel=function(
 
     
 # For the temperature inputs below there are a few options:
-# 1. provide a spline fitted to an observed temperature species, which must be passed to temperaturefile
-# 2. specify a fixed temperature in degrees celsius to the fixTemp argument. If specifying a fixed temperature then a vector can be input to study multiple temperatures.  A single value will run the model once for that value.
-# 3. if both temperaturefile and fixTemp are left NULL then a sinusoidal temperature function will be assumed.  The sinusoidal function assumes a mean of 13 celsius and amplitude of 2 degrees.  To change this the user must do so in the tempFunc.R file.
+# 1. provide a spline fitted to an observed temperature species, which must be passed to temperatureSpline
+# 2. specify a fixed temperature in degrees celsius to the fixTemp argument
+# 3. A sine curve - this is used if fixTemp is not finite and temperatureSpline is NULL 
     temperature.pars=list(
-        temperaturefile=NULL, # Can also input a spline through temperature datapoints
-        fixTemp = 14,
-        deltaT = 0 # apply this temperature change over the baseline.  
-### Potato plant parameters
+        temperatureSpline=NULL, #output of smooth.spline() through temperature measurements
+        fixTemp = 14, #constant temperature thoughout simulation
+        deltaT = 0 # apply this temperature change 
     ),
+    
+### Potato plant parameters
     plant.pars=list(
         resistanceFactor = 0, # resistance factor of potatoes
         N.plants = 1, # Number of potato plants
@@ -114,6 +117,7 @@ parms = list(
     PA = lifecycle.pars$PA,
     deathC = lifecycle.pars$deathC,
     dormancy = lifecycle.pars$dormancy,
+    fixedGenderRatio = lifecycle.pars$fixedGenderRatio,
     gen2 = lifecycle.pars$gen2,
     plantingDOY = plantingDOY,
     harvestingDOY = harvestingDOY,
@@ -130,13 +134,16 @@ parms = list(
     roots.per.cm = plant.pars$roots.per.cm,
     N.plants = plant.pars$N.plants,
     deltaT = temperature.pars$deltaT,
+    temperatureSpline = temperature.pars$temperatureSpline,
     Evec = Evec,
     Jvec = Jvec,
     Afvec = Afvec,
     Amvec = Amvec
 )
 
-if (!is.null(temperature.pars$fixTemp)){
+
+#Add deltaT for new constantTemp
+if (is.finite(temperature.pars$fixTemp)){
     parms$constantTemp=temperature.pars$fixTemp+parms$deltaT
 }else{
     parms$constantTemp=NA
@@ -144,11 +151,11 @@ if (!is.null(temperature.pars$fixTemp)){
 
 
 #initial conditions
-initial=initFunc(parms)
+initial=initialConditions(parms)
 parms$tauE.init=as.numeric(unname(initial['tauE']))
 
 #think about changing time step???
-timeVec=seq(parms$simStartDay,numYears*365,by=0.5)
+timeVec=seq(0,numYears*365,by=0.5)
 
 # Run the model
 
@@ -157,8 +164,6 @@ print('Start ODE solver')
 #output <- pcn.function(parms,initial,timeVec)
 output =  as.data.frame(dde(y=initial,times=timeVec,func=pcn.equations,parms=parms,hbsize=10000,tol=1e-5))
 
-
-quickPlot(output,parms)
 
 return(list(solutions=output,parms=parms))
 

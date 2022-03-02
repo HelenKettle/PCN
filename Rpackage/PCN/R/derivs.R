@@ -17,13 +17,21 @@ pcn.equations <- function(t,x,parms){
     sum.J <- x["sum.J"] # Total juveniles
 
     with(as.list(c(parms)),{
-      
-        # Define temperatures at different time points
-        Tempnow <- tempFunc(t,deltaT,simStartDay,constantTemp,temperaturefile)
-        TempE <- tempFunc(t-tauE,deltaT,simStartDay,constantTemp,temperaturefile)
-        TempJ <- tempFunc(t-tauJ,deltaT,simStartDay,constantTemp,temperaturefile)
-        Temp0 <- tempFunc(0,0,simStartDay,constantTemp,temperaturefile)
 
+        dayOfYr=t+simStartDay
+        
+        # Define temperatures at different time points
+        if (is.finite(constantTemp)){
+            Tempnow = constantTemp
+            TempE = constantTemp
+            TempJ = constantTemp
+            Temp0 = constantTemp
+        }else{
+            Tempnow <- tempFunc(t,deltaT,simStartDay,temperatureSpline)
+            TempE <- tempFunc(t-tauE,deltaT,simStartDay,temperatureSpline)
+            TempJ <- tempFunc(t-tauJ,deltaT,simStartDay,temperatureSpline)
+            Temp0 <- tempFunc(0,0,simStartDay,temperatureSpline)
+        }
     
         # Define lags
         if((t-tauE) < 0){
@@ -110,7 +118,7 @@ pcn.equations <- function(t,x,parms){
 
         # Adult female ODEs
         all.dA.f=rep(NA,kA)
-        all.dA.f[1]=(kA/tauA.f)*(x[Jvec[kJ]]*female.prop(sum.J,resistanceFactor,fixedGenderRatio,total.root.length) - x[Afvec[1]])
+        all.dA.f[1]=(kA/tauA.f)*(x[Jvec[kJ]]*female.prop(sum.J,total.root.length,resistanceFactor,fixedGenderRatio) - x[Afvec[1]])
         if (kA > 1){
             for (k in 2:kA){
                 all.dA.f[k] = (kA/tauA.f)*(x[Afvec[k-1]] - x[Afvec[k]])
@@ -119,7 +127,7 @@ pcn.equations <- function(t,x,parms){
 
         # Adult male ODEs
         all.dA.m=rep(NA,kA)
-        all.dA.m[1]=(kA/tauA.m)*(x[Jvec[kJ]]*(1-female.prop(sum.J,resistanceFactor,fixedGenderRatio,total.root.length))-x[Amvec[1]])
+        all.dA.m[1]=(kA/tauA.m)*(x[Jvec[kJ]]*(1-female.prop(sum.J,total.root.length,resistanceFactor,fixedGenderRatio))-x[Amvec[1]])
         if (kA > 1){
             for (k in 2:kA){
                 all.dA.m[k] = (kA/tauA.m)*(x[Amvec[k-1]] - x[Amvec[k]])

@@ -1,4 +1,4 @@
-#' initFunc
+#' initialConditions
 #'
 #' Creates the initial conditions vector.
 #' Assume that all life stages are empty apart from active cysts
@@ -8,13 +8,17 @@
 #'
 #' @return initialVec for tauE, tauJ, PE, Einit, Jinit, Afinit, Aminit, C.pre, C, C.d, sum.J
 
-initFunc=function(parms){
+initialConditions=function(parms){
     
 
     initial = with(parms,{
 
 
-        Temp0 <- tempFunc(0,deltaT,simStartDay,constantTemp,temperaturefile)
+        if (is.finite(constantTemp)){
+            Temp0=constantTemp
+        }else{
+            Temp0 <- tempFunc(0,deltaT,simStartDay,temperatureSpline)
+        }
         
         tauE.init <- 1/growthE(Temp0)
 

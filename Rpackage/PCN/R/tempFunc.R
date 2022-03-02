@@ -1,38 +1,45 @@
 #' tempFunc
 #'
+#' Use this function if temperature is not constant
+#' 
 #' @param t is model time
-#' @param simStartDay is the day of the year that the simulation starts (when t=0)
 #' @param deltaT increase or decrease to temperature (oC)
-#' @param constantTemp scalar value for fixed temperature (oC). Default is NA.
-#' @param temperaturefile string for name of file to get temperature from. Default is NULL
-#' @param init.temp scalar for initial temperature value. Default is 14.5 oC.
-
+#' @param simStartDay is the day of the year that the simulation starts (when t=0)
+#' @param temperatureSpline output from smooth.spline fitted through temperature data. Default is NULL
+#'
 #' @import stats
+#'
+#' @export
+tempFunc <- function(t,deltaT,simStartDay,temperatureSpline=NULL){
 
-tempFunc <- function(t,deltaT,simStartDay,constantTemp=NA,temperaturefile=NULL,init.temp=14.5){
-
-    if (is.na(constantTemp)){
     
-      if(is.null(temperaturefile)){
+    if (is.null(temperatureSpline)){
         
-        dayOfYear=(t+simStartDay)%%365
+        dayOfYear = (t+simStartDay)%%365
+        
+        offSet=100
+        
+        meanTemp=13
+        
+        amplitude=2
+        
         if(t >= 0){
-            Temp = 13 + 2*(1-cos(2*pi*(t-182.5)/365))+deltaT
+            Temp = meanTemp + amplitude*sin(2*pi*(dayOfYear-offSet)/365) + deltaT
         } else {
-            Temp = 13 + 2*(1-cos(2*pi*(0-182.5)/365))+deltaT
+            Temp = meanTemp + amplitude*sin(2*pi*(simStartDay-offSet)/365) + deltaT
         }
-      } else {
+        
+    } else {
         
         if(t > 0){
-            Temp = stats::predict(temperaturefile,t)$y+deltaT
+            Temp = stats::predict(temperatureSpline,t)$y+deltaT
         } else {
-            Temp = stats::median(predict(temperaturefile,0:14)$y)+deltaT
+            Temp = stats::median(predict(temperatureSpline,0:14)$y)+deltaT
         }
         
-      }
-        
-    }else{
-        Temp = constantTemp
     }
+    
+    
+    
     return(Temp)
 }

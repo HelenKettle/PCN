@@ -1,0 +1,315 @@
+---
+title: "PCN"
+author: "Helen Kettle"
+date: "03/03/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Getting started with PCN
+
+The mathematical model used in this software is described here:
+<https://www.sciencedirect.com/science/article/abs/pii/S0022519321001235?dgcid=author>
+
+David A. Ewing, Vivian Blok, Helen Kettle. "A process-based, stage-structured model of potato cyst nematode population dynamics: Effects of temperature and resistance", Journal of Theoretical Biology,Volume 522, 2021.
+
+This vignette shows some examples of how this package can be used.
+
+## 1. Run model at constant soil temperature
+
+```{r eval=FALSE}
+
+fixTemp=14
+deltaT=0
+
+numYears=1 #number of years to simulate
+simStartDay=90 #day of the year the simulation starts e.g. 1st April
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts 
+
+out=PCNmodel(numYears=numYears,
+    simStartDay=simStartDay,
+    initialEggsPerGram=initialEggsPerGram,
+    soil.density = soil.density,
+    temperature.pars=list(
+        temperatureSpline=NULL,
+        fixTemp = fixTemp,
+        deltaT = deltaT
+    )
+             )
+
+
+plotPCN(out$solution,out$parms,ylim=c(0,350),main=paste('fixed temp of',fixTemp,'+',deltaT))
+
+cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))
+    
+text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+```
+
+![Run model at constant temperature](Demo1.eps){width=500px}
+
+## 2. Run model with sinusoidal soil temperature
+
+```{r eval=FALSE}
+deltaT=0
+
+### Model settings
+numYears=1 #number of years to simulate
+simStartDay=90 #day of the year the simulation starts e.g. 1st April
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+dev.new(height=7,width=10)
+par(mfrow=c(1,2))
+
+out=PCNmodel(numYears=numYears,
+    simStartDay=simStartDay,
+    initialEggsPerGram=initialEggsPerGram,
+    soil.density = soil.density,
+    temperature.pars=list(
+        temperatureSpline=NULL,
+        fixTemp = 13,
+        deltaT = deltaT
+    )
+             )
+
+
+out1=out
+
+plotPCN(out$solution,out$parms,ylim=c(0,250),main=paste('fixed temp'))
+
+cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))   
+text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+print(paste('final number of cysts is',cysts.final))
+
+#increase deltaT
+out=PCNmodel(numYears=numYears,
+    simStartDay=simStartDay,
+    initialEggsPerGram=initialEggsPerGram,
+    soil.density = soil.density,
+    temperature.pars=list(
+        temperatureSpline=NULL,
+        fixTemp = NA,
+        deltaT = deltaT
+    )
+             )
+
+
+out2=out
+plotPCN(out2$solution,out2$parms,ylim=c(0,250),main=paste('sinusoidal temp'))
+
+cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))   
+text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+
+```
+
+![Run model with sinusoidal temperature](Demo2.eps){width=500px}
+
+## 3. Run model with splined temperature data
+
+Here we simulate some temperature measurements, run them through **smooth.spline()** and then input to **PCNmodel()**
+
+```{r eval=FALSE}
+
+numYears=1 #number of years to simulate
+simStartDay=50 #day of the year the simulation starts e.g. 1st April
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+#make up some temperature data
+time.data=seq(0,numYears*365+10)
+temp.data=NA*time.data
+for (i in 1:length(time.data)){
+    temp.data[i]= 15 + 3*sin(2*pi*(time.data[i]%%365-100)/365) + rnorm(1,0,5)
+}
+#fit spline
+temp.spline=smooth.spline(temp.data)
+
+dev.new(width=10,height=6)
+par(mfrow=c(1,2))
+    
+plot(time.data,temp.data,type='l',xlab='Julian days',ylab='soil temperature (oC)')
+lines(temp.spline$x,temp.spline$y,col='red',lwd=2)
+legend('bottom',legend=c('data','spline'),col=c('black','red'),lty=1)
+
+out=PCNmodel(numYears=numYears,
+    simStartDay=simStartDay,
+    initialEggsPerGram=initialEggsPerGram,
+    soil.density = soil.density,
+    temperature.pars=list(
+        temperatureSpline=temp.spline, 
+        fixTemp = NA,
+        deltaT = 0 # apply this temperature change over the baseline.  
+    )
+             )
+
+plotPCN(out$solution,out$parms)
+cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))   
+text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+```
+
+![Run model with splined temperature data](Demo3.eps){width=500px}
+
+## 4. Using sinusoidal temperature, look at effect of planting potatoes a month earlier
+
+```{r eval=FALSE}
+
+numYears=1 #number of years to simulate
+simStartDay=90 #day of the year the simulation starts e.g. 1st April
+
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+
+dev.new(width=13,height=6)
+par(mfrow=c(1,3))
+
+for (plantingDOY in c(60,90,120)){
+
+    out=PCNmodel(numYears=numYears,
+        simStartDay=simStartDay,
+        initialEggsPerGram=initialEggsPerGram,
+        soil.density = soil.density,
+        plantingDOY=plantingDOY, # potatoes planted on this day of the year
+        harvestingDOY=plantingDOY+216, # potatoes harvested on this day of the year
+        temperature.pars=list(
+            temperatureSpline=NULL, 
+            fixTemp = NA,
+            deltaT = 0 
+        )
+                 )
+    
+    
+    plotPCN(out$solution,out$parms,ylim=c(0,250),main=paste('Planting day of year is',plantingDOY))
+    
+    cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))
+    
+    text(250,150,paste('Final number of cysts is',cysts.final),cex=1.5)
+
+
+}
+```
+
+![Change potato planting time](Demo4.eps){width=500px}
+
+## 5. Change number of potato plants
+
+```{r eval=FALSE}
+numYears=1 #number of years to simulate
+simStartDay=50 #day of the year the simulation starts e.g. 1st April
+
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+
+dev.new(width=13,height=6)
+par(mfrow=c(1,3))
+
+for (n in 1:3){
+
+    out=PCNmodel(numYears=numYears,
+        simStartDay=simStartDay,
+        initialEggsPerGram=initialEggsPerGram,
+        soil.density = soil.density,
+        temperature.pars=list(
+            temperatureSpline=NULL, 
+            fixTemp = NA,
+            deltaT = 0 
+        ),
+    plant.pars=list(
+        resistanceFactor = 0, # resistance factor of potatoes
+        N.plants = n, # Number of potato plants
+        root.length = 500, # maximum length of plant roots (cm) in healthy plant
+        roots.per.cm = 0.5 # root length density of potato plants
+    )
+                 )
+    
+    
+    plotPCN(out$solution,out$parms,ylim=c(0,800),main=paste(n,'potato plants'))
+    
+    cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))
+    
+    text(250,400,paste('Final number of cysts is',cysts.final),cex=1.5)
+
+}
+```
+
+![Change number of potato plants](Demo5.eps){width=500px}
+
+## 6. Change potato plant resistance
+
+```{r eval=FALSE}
+numYears=1 #number of years to simulate
+simStartDay=50 #day of the year the simulation starts e.g. 1st April
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+
+dev.new(width=13,height=6)
+par(mfrow=c(1,3))
+
+for (n in c(0,0.5,1)){
+
+    out=PCNmodel(numYears=numYears,
+        simStartDay=simStartDay,
+        initialEggsPerGram=initialEggsPerGram,
+        soil.density = soil.density,
+        temperature.pars=list(
+            temperatureSpline=NULL, 
+            fixTemp = NA,
+            deltaT = 0 
+        ),
+    plant.pars=list(
+        resistanceFactor = n, # resistance factor of potatoes
+        N.plants = 1, # Number of potato plants
+        root.length = 500, # maximum length of plant roots (cm) in healthy plant
+        roots.per.cm = 0.5 # root length density of potato plants
+    )
+                 )
+    
+    
+    plotPCN(out$solution,out$parms,ylim=c(0,250),main=paste('Resistance factor:',n))
+    
+    cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))
+    
+    text(250,150,paste('Final number of cysts is',cysts.final),cex=1.5)
+
+
+}
+```
+![Change potato plant resistance to PCN](Demo6.eps){width=500px}
+
+## 7. Run for multiple years on a 6 year rotation i.e. potatoes are planted in years 1, 7, 13....etc
+
+Temperature is constant
+
+```{r eval=FALSE}
+
+numYears=20 #number of years to simulate
+simStartDay=90 #day of the year the simulation starts e.g. 1st April
+initialEggsPerGram = 0.1 # Initial egg density
+soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
+
+out=PCNmodel(numYears=numYears,
+    simStartDay=simStartDay,
+    initialEggsPerGram=initialEggsPerGram,
+    soil.density = soil.density,
+    plantingYears=seq(1,numYears,by=6),
+    temperature.pars=list(
+        temperatureSpline=NULL, 
+        fixTemp = 14,
+        deltaT = 0 
+    ),           
+    )
+
+  
+dev.new()
+time=out$solution[,'time']
+cysts=rowSums(out$solution[,c('C.pre','C','C.d')])
+plot(time/365,cysts,type='l',cex.lab=1.4,xlab='Years',main='Planting every 6 years',col='blue',lwd=2)
+```
+![Constant temperature, potatoes planted on 6 yr rotation](Demo7cysts.eps){width=250px}

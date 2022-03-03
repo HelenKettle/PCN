@@ -15,7 +15,7 @@ load_all(package_f)
 
 
 ### Model settings
-numYears=7 #number of years to simulate
+numYears=20 #number of years to simulate
 simStartDay=90 #day of the year the simulation starts e.g. 1st April
 initialEggsPerGram = 0.1 # Initial egg density
 soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
@@ -27,7 +27,7 @@ out=PCNmodel(numYears=numYears,
     simStartDay=simStartDay,
     initialEggsPerGram=initialEggsPerGram,
     soil.density = soil.density,
-    plantingYears=seq(1,numYears,by=3),
+    plantingYears=seq(1,numYears,by=6),
     temperature.pars=list(
         temperatureSpline=NULL, 
         fixTemp = 14,
@@ -50,4 +50,5 @@ dev.copy2eps(file='~/PCN2022/Rpackage/Demos/Demo7.eps')
 dev.new()
 time=out$solution[,'time']
 cysts=rowSums(out$solution[,c('C.pre','C','C.d')])
-plot(time,cysts,type='l')
+plot(time/365,cysts,type='l',cex.lab=1.4,xlab='Years',main='Planting every 6 years',col='blue',lwd=2)
+dev.copy2eps(file='~/PCN2022/Rpackage/Demos/Demo7cysts.eps')

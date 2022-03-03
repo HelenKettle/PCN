@@ -49,7 +49,7 @@ out=PCNmodel(numYears=numYears,
 
 plotPCN(out$solution,out$parms)
 cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))   
-text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+text(250,100,paste('Final number of cysts is',cysts.final),cex=1.2)
 print(paste('final number of cysts is',cysts.final))
 
 dev.copy2eps(file='~/PCN2022/Rpackage/Demos/Demo3.eps')

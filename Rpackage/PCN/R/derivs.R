@@ -69,9 +69,13 @@ pcn.equations <- function(t,x,parms){
         Nmal = sum(x[Amvec[]])
         
         # Were potatoes present at given time point
-        potato.presence <- potato(t,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
-        potato.presence.cystpause <- potato(t-cyst.pause,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
-        potato.presence.tauJ <- potato(t-tauJ,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
+        potato.presence <- potatoFunc(t,simStartDay,plantingDOY,harvestingDOY,plantingYears)
+        potato.presence.cystpause <- potatoFunc(t-cyst.pause,simStartDay,plantingDOY,harvestingDOY,plantingYears)
+        potato.presence.tauJ<- potatoFunc(t-tauJ,simStartDay,plantingDOY,harvestingDOY,plantingYears)
+        
+        #potato.presence <- potato(t,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
+        #potato.presence.cystpause <- potato(t-cyst.pause,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
+        #potato.presence.tauJ <- potato(t-tauJ,simStartDay,plantingDOY,harvestingDOY,noPotatoYearsStart,noPotatoYearsFinish)
         
         # Determine initial egg density for each growing season
         if(t < (365+plantingDOY)){

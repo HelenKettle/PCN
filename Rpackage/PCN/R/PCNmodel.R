@@ -6,7 +6,7 @@
 #' @param soil.density Scalar. Soil density (g/cm^3). Defaults to 1.5 g/cm^3
 #' @param plantingDOY Integer. Potatoes planted on this day of the year. Defaults to 90
 #' @param harvestingDOY Integer. Potatoes harvested on this day of the year. Defaults to 216
-#' @param noPotatoYearsList Defaults to list(c(start=2,fin=3)), Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).
+#' @param plantingYears Vector of integers which are the years potatoes are planted. Default is 1:1000
 #' @param lifecycle.pars list containing parameters controlling the PCN lifecycle
 #' \itemize{
 #' \item cyst.pause = 365 length of obligatory diapause (days)
@@ -30,10 +30,10 @@
 #' @param temperature.pars list
 #' @param plant.pars list of factors relating to the potato plant
 #' \itemize{
-#' \item resistanceFactor = 0, resistance factor of potatoes (see Table 1 Ewing et al 2021)
+#' \item resistanceFactor = 0, resistance factor of potatoes. Number between 0 and 1 (see Table 1 Ewing et al 2021)
 #' \item N.plants = 1, Number of potato plants
 #' \item root.length = 500, maximum length of plant roots (cm) in healthy plant
-#' \item oots.per.cm = 0.5, root length density of potato plants
+#' \item roots.per.cm = 0.5, root length density of potato plants (cm/cm^3) (see Table 2 Ewing et al 2021)
 #' }
 #' 
 #' @return a list with the solution matrix and a list of parameters
@@ -49,8 +49,8 @@ PCNmodel=function(
     soil.density = 1.5, # Soil density
     plantingDOY=90, # potatoes planted on this day of the year
     harvestingDOY=216, # potatoes harvested on this day of the year
-    noPotatoYearsList=list(c(start=2,fin=3)), # Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).
-
+    plantingYears=seq(1,1000), #years potatoes are planted
+    
     lifecycle.pars=list(
         cyst.pause = 365, # length of obligatory diapause (days)
         eggs_per_cyst = 250, # number of eggs per cyst
@@ -70,11 +70,6 @@ PCNmodel=function(
         kA = 50
         ),
 
-    
-# For the temperature inputs below there are a few options:
-# 1. provide a spline fitted to an observed temperature species, which must be passed to temperatureSpline
-# 2. specify a fixed temperature in degrees celsius to the fixTemp argument
-# 3. A sine curve - this is used if fixTemp is not finite and temperatureSpline is NULL 
     temperature.pars=list(
         temperatureSpline=NULL, #output of smooth.spline() through temperature measurements
         fixTemp = 14, #constant temperature thoughout simulation
@@ -94,9 +89,6 @@ PCNmodel=function(
 # Create vector with names of all life stages
 stageNames=c('cysts','eggs','juveniles','females','males')
 
-# Set start and finish times for years with no potatoes
-noPotStart=as.numeric(unname(noPotatoYearsList[[1]]['start']))
-noPotFinish=as.numeric(unname(noPotatoYearsList[[1]]['fin']))
 
 # Create names for storing results for each life stage
 Evec=paste('E',1:ode.compartments$kE,sep='')
@@ -126,8 +118,7 @@ parms = list(
     Copt = lifecycle.pars$Copt,
     resistanceFactor = plant.pars$resistanceFactor,
     simStartDay = simStartDay,
-    noPotatoYearsStart = noPotStart,
-    noPotatoYearsFinish = noPotFinish,
+    plantingYears=plantingYears,
     cyst.pause = lifecycle.pars$cyst.pause,
     soil.density = soil.density,
     root.length = plant.pars$root.length,

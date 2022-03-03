@@ -17,12 +17,8 @@ load_all(package_f)
 ### Model settings
 numYears=1 #number of years to simulate
 simStartDay=50 #day of the year the simulation starts e.g. 1st April
-
 initialEggsPerGram = 0.1 # Initial egg density
 soil.density = 1.5 # Soil density - used to calculate initial cysts (derivs, initialCinditions.R)
-plantingDOY=90 # potatoes planted on this day of the year
-harvestingDOY=216 # potatoes harvested on this day of the year
-noPotatoYearsList=list(c(start=2,fin=3)) # Choose years not to plant potatoes. Can compare the different strategies by adding more to this list. For continuous planting use c(start=0,fin=0).
 
 #make up some temperature data
 time.data=seq(0,numYears*365+10)
@@ -52,4 +48,8 @@ out=PCNmodel(numYears=numYears,
              )
 
 plotPCN(out$solution,out$parms)
+cysts.final=round(sum(out$solution[nrow(out$solution),c('C.pre','C','C.d')]))   
+text(250,150,paste('Final number of cysts is',cysts.final),cex=1.2)
+print(paste('final number of cysts is',cysts.final))
 
+dev.copy2eps(file='~/PCN2022/Rpackage/Demos/Demo3.eps')
